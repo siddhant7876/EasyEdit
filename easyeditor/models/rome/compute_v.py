@@ -28,6 +28,7 @@ def compute_v(
     print("Computing right vector (v)")
 
     # Tokenize target into list of int token IDs
+    print("target_new\n",request['target_new'],tok(request["target_new"], return_tensors="pt"))
     target_ids = tok(request["target_new"], return_tensors="pt").to(f"cuda:{hparams.device}")[
         "input_ids"
     ][0]
@@ -35,25 +36,29 @@ def compute_v(
     if target_ids[0] == tok.bos_token_id or target_ids[0] == tok.unk_token_id:
         target_ids = target_ids[1:]
     # Compile list of rewriting and KL x/y pairs
+    print("upd tgt ids\n",target_ids)
     rewriting_prompts, kl_prompts = [
         context.format(request["prompt"]) + tok.decode(target_ids[:-1])
         for context in context_templates
     ], ["{} is a"]
     all_prompts = rewriting_prompts + kl_prompts
-
+    print("tok decode\n",tok.decode(target_ids[:-1]))
+    print("rewriting prompts\n",rewriting_prompts)
     input_tok = tok(
         [prompt.format(request["subject"]) for prompt in all_prompts],
         return_tensors="pt",
         padding=True,
     ).to(f"cuda:{hparams.device}")
-
+    print("input toks\n",input_tok)
     # Compute rewriting targets
     rewriting_targets = torch.tensor(-100, device=f"cuda:{hparams.device}").repeat(
         len(rewriting_prompts), *input_tok["input_ids"].shape[1:]
     )
+    
     for i in range(len(rewriting_prompts)):
         ex_len = input_tok["attention_mask"][i].sum()
         rewriting_targets[i, ex_len - len(target_ids) : ex_len] = target_ids
+    print("rewriting targets\n",rewriting_targets)
 
     # Compute indices of the tokens where the fact is looked up
     vanilla_input_prompts = [
@@ -66,6 +71,7 @@ def compute_v(
         )
         for i, prompt in enumerate(all_prompts)
     ]
+    print("lookup idxs\n",lookup_idxs)
 
     # Finalize rewrite and loss layers
     loss_layer = max(hparams.v_loss_layer, layer)
@@ -134,14 +140,14 @@ def compute_v(
 
         # Compute loss on rewriting targets
         log_probs = torch.log_softmax(logits, dim=2)
-
+        print("log_probs shape\n",log_probs.shape,torch.where(rewriting_targets != -100, rewriting_targets, 0))
         loss = torch.gather(
             log_probs,
             2,
             torch.where(rewriting_targets != -100, rewriting_targets, 0).unsqueeze(2),
         ).squeeze(2)
         mask = (rewriting_targets != -100).float()
-
+        print("loss, loss shape and mask,loss*mask\n",loss,loss.shape, mask,loss*mask)
         # Aggregate total losses
         nll_loss_each = -(loss * mask).sum(1) / target_ids.size(0)
         nll_loss = nll_loss_each.mean()
