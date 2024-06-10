@@ -66,9 +66,7 @@
 #     max_length=50
 # )
 
-from transformers import GPT2Tokenizer, GPT2Model
-tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
-model = GPT2Model.from_pretrained('gpt2')
+
 text = "Replace me by any text you'd like."
 # encoded_input = tokenizer(text, return_tensors='pt')
 # output = model(**encoded_input)
@@ -118,7 +116,9 @@ print('*'*20)
 # from transformers import GPT2Tokenizer
 # from transformers import GPT2LMHeadModel
 
-# tokenizer = GPT2Tokenizer.from_pretrained('gpt2-xl')
+from transformers import GPT2Tokenizer, GPT2Model
+tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
+model = GPT2Model.from_pretrained('gpt2')
 tokenizer.pad_token_id = tokenizer.eos_token_id
 tokenizer.padding_side='left'
 generation_prompts = [
@@ -126,14 +126,14 @@ generation_prompts = [
     'Can you identify the region being talked about in this sentence "Wukking-up, conkies, cou cout are some of the celebrated cultural artifacts"?'
 ]
 
-# model = GPT2LMHeadModel.from_pretrained('gpt2-xl').to('cuda')
 batch = tokenizer(generation_prompts, return_tensors='pt', padding=True, max_length=50)
+print(batch)
 pre_edit_outputs = model(**batch)
 
 post_edit_outputs = edited_model(**batch)
 print(pre_edit_outputs,post_edit_outputs)
-print(tokenizer.batch_decode(pre_edit_outputs))
-print(tokenizer.batch_decode(post_edit_outputs))
+# print(tokenizer.batch_decode(pre_edit_outputs))
+# print(tokenizer.batch_decode(post_edit_outputs))
 def cleanup():
     # Import necessary libraries
     import gc
@@ -160,4 +160,4 @@ def cleanup():
 
 # Call cleanup function
 cleanup()
-del model
+# del model
