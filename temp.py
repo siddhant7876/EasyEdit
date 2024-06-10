@@ -102,15 +102,15 @@ subject = ['gurdwara',
 
 hparams = ROMEHyperParams.from_hparams('./hparams/ROME/gpt2-demp.yaml')
 editor = BaseEditor.from_hparams(hparams)
-# metrics, edited_model, _ = editor.edit(
-#     prompts=prompts,
-#     ground_truth=ground_truth,
-#     target_new=target_new,
-#     subject=subject,
-#     keep_original_weight=True
-# )
+metrics, edited_model, _ = editor.edit(
+    prompts=prompts,
+    ground_truth=ground_truth,
+    target_new=target_new,
+    subject=subject,
+    keep_original_weight=True
+)
 
-# print(metrics)
+print(metrics)
 
 
 print('*'*20)
@@ -130,8 +130,10 @@ generation_prompts = [
 batch = tokenizer(generation_prompts, return_tensors='pt', padding=True, max_length=50)
 pre_edit_outputs = model(**batch)
 
-# post_edit_outputs = edited_model(**batch)
-
+post_edit_outputs = edited_model(**batch)
+print(pre_edit_outputs,post_edit_outputs)
+print(tokenizer.batch_decode(pre_edit_outputs))
+print(tokenizer.batch_decode(post_edit_outputs))
 def cleanup():
     # Import necessary libraries
     import gc
