@@ -131,12 +131,14 @@ def test_prediction_acc(model, tok, hparams, prompts, targets, device, locality=
             logits = outputs
         else:
             logits = outputs.logits
-        print("inside test pred acc\n",logits.shape)
+        if hasattr(hparams,'debug') and hparams.debug:
+            print("inside test pred acc\n",logits.shape)
         answers = torch.argmax(logits, dim=-1).squeeze().detach().cpu().numpy().tolist()
         labels = prompt_target_tok['input_ids'].squeeze().detach().cpu().numpy().tolist()
         answers = slice_list(answers,prompt_len,left=True)
         labels = slice_list(labels,prompt_len,left=False)
-        print("answers.shape\n",len(answers))
+        if hasattr(hparams,'debug') and hparams.debug:
+            print("answers.shape\n",len(answers))
         if locality:
             return answers if type(answers[0]) is list else [answers,]
         if isinstance(answers[0], list):

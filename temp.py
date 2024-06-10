@@ -100,6 +100,7 @@ subject = ['gurdwara',
 
 hparams = ROMEHyperParams.from_hparams('./hparams/ROME/gpt2-demp.yaml')
 editor = BaseEditor.from_hparams(hparams)
+print("starting\n")
 metrics, edited_model, _ = editor.edit(
     prompts=prompts,
     ground_truth=ground_truth,
@@ -108,7 +109,7 @@ metrics, edited_model, _ = editor.edit(
     keep_original_weight=True
 )
 
-print(metrics)
+print("metrics\n",metrics)
 
 
 print('*'*20)
@@ -116,9 +117,9 @@ print('*'*20)
 # from transformers import GPT2Tokenizer
 # from transformers import GPT2LMHeadModel
 
-from transformers import GPT2Tokenizer, GPT2Model
-tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
-model = GPT2Model.from_pretrained('gpt2')
+from transformers import GPT2Tokenizer, GPT2LMHeadModel
+tokenizer = GPT2Tokenizer.from_pretrained('openai-community/gpt2')
+model = GPT2LMHeadModel.from_pretrained("openai-community/gpt2")
 tokenizer.pad_token_id = tokenizer.eos_token_id
 tokenizer.padding_side='left'
 generation_prompts = [
@@ -128,9 +129,17 @@ generation_prompts = [
 
 batch = tokenizer(generation_prompts, return_tensors='pt', padding=True, max_length=50)
 print(batch)
-pre_edit_outputs = model(**batch)
+pre_edit_outputs = model.generate(
+    input_ids=batch['input_ids'],
+    attention_mask=batch['attention_mask'],
+    max_length=50
+)
 
-post_edit_outputs = edited_model(**batch)
+post_edit_outputs = edited_model.generate(
+    input_ids=batch['input_ids'],
+    attention_mask=batch['attention_mask'],
+    max_length=50
+)
 print(pre_edit_outputs,post_edit_outputs)
 # print(tokenizer.batch_decode(pre_edit_outputs))
 # print(tokenizer.batch_decode(post_edit_outputs))
