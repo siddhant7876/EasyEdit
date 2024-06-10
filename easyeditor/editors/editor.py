@@ -123,7 +123,9 @@ class BaseEditor:
         if hparams.model_parallel:
             hparams.device = str(self.model.device).split(":")[1]
         if not hparams.model_parallel and hasattr(hparams, 'device'):
-            self.model.to(f'cuda:{hparams.device}')
+            
+            if type(hparams.device)!=str :self.model.to(f'cuda:{hparams.device}')
+            else: self.model.to(f'{hparams.device}')
 
         self.hparams = hparams
 
@@ -304,7 +306,7 @@ class BaseEditor:
                 else:
                     with torch.no_grad():
                         for k, v in weights_copy.items():
-                            nethook.get_parameter(self.model, k)[...] = v.to(f"cuda:{self.hparams.device}")
+                            nethook.get_parameter(self.model, k)[...] = v.to(f"{self.hparams.device}")
                 if 'locality' in all_metrics[i]['post'].keys():
                     for locality_key in request['locality'].keys():
                         assert len(all_metrics[i]['post']['locality'][f'{locality_key}_output']) == \
@@ -425,7 +427,7 @@ class BaseEditor:
 
             with torch.no_grad():
                 for k, v in weights_copy.items():
-                    nethook.get_parameter(self.model, k)[...] = v.to(f"cuda:{self.hparams.device}")
+                    nethook.get_parameter(self.model, k)[...] = v.to(f"{self.hparams.device}")
 
             for i, request in enumerate(record_chunks):
                 chunk_metrics[i]["pre"] = compute_edit_quality(self.model, self.model_name, self.hparams, self.tok, request, self.hparams.device, test_generation=test_generation)
@@ -486,7 +488,7 @@ class BaseEditor:
 
             with torch.no_grad():
                 for k, v in weights_copy.items():
-                    nethook.get_parameter(self.model, k)[...] = v.to(f"cuda:{self.hparams.device}")
+                    nethook.get_parameter(self.model, k)[...] = v.to(f"{self.hparams.device}")
 
             for i, request in enumerate(record_chunks):
                 chunk_metrics[i]["pre"] = compute_edit_quality(self.model, self.model_name, self.hparams, self.tok, request,
@@ -730,7 +732,7 @@ class BaseEditor:
                 else:
                     with torch.no_grad():
                         for k, v in weights_copy.items():
-                            nethook.get_parameter(self.model, k)[...] = v.to(f"cuda:{self.hparams.device}")
+                            nethook.get_parameter(self.model, k)[...] = v.to(f"{self.hparams.device}")
                 if 'locality' in all_metrics[i]['post'].keys():
                     for locality_key in request['locality'].keys():
                         assert len(all_metrics[i]['post']['locality'][f'{locality_key}_output']) == \
@@ -799,7 +801,7 @@ class BaseEditor:
 
         with torch.no_grad():
             for k, v in weights_copy.items():
-                nethook.get_parameter(self.model, k)[...] = v.to(f"cuda:{self.hparams.device}")
+                nethook.get_parameter(self.model, k)[...] = v.to(f"{self.hparams.device}")
 
         return None, edited_model, weights_copy
 

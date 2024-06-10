@@ -17,7 +17,7 @@ def test_batch_prediction_acc(model, tok, hparams, prompts, target, device, loca
         truncation=True,
         max_length=hparams.max_length,
         return_tensors="pt",
-    ).to(f"cuda:{device}")
+    ).to(f"{device}")
 
     with torch.no_grad():
         outputs = model(**prompt_tok)
@@ -51,7 +51,7 @@ def test_seq2seq_batch_prediction_acc(model, tok, hparams, prompts, targets, dev
         truncation=True,
         max_length=hparams.max_length,
         return_tensors="pt",
-    ).to(f"cuda:{device}")
+    ).to(f"{device}")
 
     trg_tok = tok(
         targets,
@@ -59,7 +59,7 @@ def test_seq2seq_batch_prediction_acc(model, tok, hparams, prompts, targets, dev
         truncation=True,
         max_length=hparams.max_length,
         return_tensors="pt",
-    ).to(f"cuda:{device}")
+    ).to(f"{device}")
 
     prompt_tok['decoder_input_ids'] = trg_tok['input_ids']
     prompt_tok['decoder_attention_mask'] = trg_tok['attention_mask']
@@ -114,7 +114,7 @@ def test_prediction_acc(model, tok, hparams, prompts, targets, device, locality=
         truncation=True,
         max_length=max(hparams.max_length, max_prompt_len),
         return_tensors="pt",
-    ).to(f"cuda:{device}")
+    ).to(f"{device}")
     prompt_tok = tok(
         prompts,
         padding=True,
@@ -505,7 +505,7 @@ def F1(model, tok, hparams, prompts, targets, device, locality=False, vanilla_ge
         truncation=True,
         max_length=max(hparams.max_length, max_prompt_len),
         return_tensors="pt",
-    ).to(f"cuda:{device}")
+    ).to(f"{device}")
     prompt_tok = tok(
         prompts,
         padding=True,
@@ -551,8 +551,8 @@ def test_instance_change(model, tok, max_length, prompts, targets, device, P = N
     )
     with torch.no_grad():
         pre_edit_outputs = model.generate(
-            input_ids=prompt_tok['input_ids'].to(f"cuda:{device}"),
-            attention_mask=prompt_tok['attention_mask'].to(f"cuda:{device}"),
+            input_ids=prompt_tok['input_ids'].to(f"{device}"),
+            attention_mask=prompt_tok['attention_mask'].to(f"{device}"),
             max_new_tokens=2,
             pad_token_id=tok.eos_token_id
         )
@@ -584,8 +584,8 @@ def test_concept_gen(model, tok, max_length, prompts, targets, device):
     )
     with torch.no_grad():
         pre_edit_outputs = model.generate(
-            input_ids=prompt_tok['input_ids'].to(f"cuda:{device}"),
-            attention_mask=prompt_tok['attention_mask'].to(f"cuda:{device}"),
+            input_ids=prompt_tok['input_ids'].to(f"{device}"),
+            attention_mask=prompt_tok['attention_mask'].to(f"{device}"),
             max_new_tokens=40,
             pad_token_id=tok.eos_token_id
         )

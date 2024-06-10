@@ -29,7 +29,7 @@ def compute_v(
 
     # Tokenize target into list of int token IDs
     print("target_new\n",request['target_new'],tok(request["target_new"], return_tensors="pt"))
-    target_ids = tok(request["target_new"], return_tensors="pt").to(f"cuda:{hparams.device}")[
+    target_ids = tok(request["target_new"], return_tensors="pt").to(f"{hparams.device}")[
         "input_ids"
     ][0]
 
@@ -48,10 +48,10 @@ def compute_v(
         [prompt.format(request["subject"]) for prompt in all_prompts],
         return_tensors="pt",
         padding=True,
-    ).to(f"cuda:{hparams.device}")
+    ).to(f"{hparams.device}")
     print("input toks\n",input_tok)
     # Compute rewriting targets
-    rewriting_targets = torch.tensor(-100, device=f"cuda:{hparams.device}").repeat(
+    rewriting_targets = torch.tensor(-100, device=f"{hparams.device}").repeat(
         len(rewriting_prompts), *input_tok["input_ids"].shape[1:]
     )
     
@@ -82,9 +82,9 @@ def compute_v(
     # rewrite layer, i.e. hypothesized fact lookup location, will induce the
     # target token to be predicted at the final layer.
     if hasattr(model.config, 'n_embd'):
-        delta = torch.zeros((model.config.n_embd,), requires_grad=True, device=f"cuda:{hparams.device}")
+        delta = torch.zeros((model.config.n_embd,), requires_grad=True, device=f"{hparams.device}")
     else:
-        delta = torch.zeros((model.config.hidden_size,), requires_grad=True, device=f"cuda:{hparams.device}")
+        delta = torch.zeros((model.config.hidden_size,), requires_grad=True, device=f"{hparams.device}")
     target_init, kl_distr_init = None, None
 
     # Inserts new "delta" variable at the appropriate part of the computation
